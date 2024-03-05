@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\Contact;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -19,6 +20,7 @@ class ContactType extends AbstractType
             ->add('date', null, [
                 'widget' => 'single_text',
             ])
+            ->add('save', SubmitType::class)
         ;
     }
 
