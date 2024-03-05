@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class ArticlesController extends AbstractController
 {
-    // symfony dit : si tu as /home tu appelles cette fonction, et tu affiches ceci
+    // symfony dit : si tu as /articles tu appelles cette fonction, et tu affiches ceci
     #[Route('/articles', name: 'app_articles')]
     public function index(EntityManagerInterface $entityManager): Response
     {
@@ -40,6 +40,17 @@ class ArticlesController extends AbstractController
         return $this->render('articles/show_article.html.twig', [
             'controller_name' => 'ArticlesController',
             'article' => $article,
+        ]);
+    }
+
+    #[Route('/articles/{id_category}', name: 'app_article_by_category')]
+    public function getArticleByCategory(EntityManagerInterface $entityManager, int $id_category): Response {
+
+        $articles = $entityManager->getRepository(Article::class)->findBy(array('category' => $id_category));
+
+        return $this->render('articles/index.html.twig', [
+            'controller_name' => 'ArticlesController',
+            'articles' => $articles,
         ]);
     }
 }

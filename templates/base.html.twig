@@ -14,6 +14,12 @@
         {% endblock %}
     </head>
     <body>
-        {% block body %}{% endblock %}
+
+        {# pour avoir ma nav sur toutes mes pages #}
+        {% include "nav.html.twig" %}
+
+        {% block body %}
+        
+        {% endblock %}
     </body>
 </html>
