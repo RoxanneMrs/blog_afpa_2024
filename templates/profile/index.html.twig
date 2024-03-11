@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello ProfileController!{% endblock %}
+
+{% block body %}
+
+    {# var_dump des infos de mon utilisateur
+    {{dump(app.user)}} #}
+
+    {{app.user.email}}
+
+{% endblock %}
