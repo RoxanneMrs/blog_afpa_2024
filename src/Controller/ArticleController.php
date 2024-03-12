@@ -95,13 +95,13 @@ class ArticleController extends AbstractController
     }
 
 
-    #[Route('/{id_category}', name: 'app_get_article_by_category', methods: ['GET'])]
+    #[Route('/category/{id_category}', name: 'app_get_article_by_category', methods: ['GET'])]
     public function getArticleByCategory(EntityManagerInterface $entityManager, int $id_category): Response
     {
-       $articles = $entityManager->getRepository(Article::class)->findBy(array("category" => $id_category));
-
+        //findBy methode prédefini, permet de recuperer des donées en filtrant,
+        $articles = $entityManager->getRepository(Article::class)->findBy(array("category" => $id_category));
         return $this->render('article/index.html.twig', [
-            'articles'=> $articles,
+            'articles' => $articles,
         ]);
     }
     

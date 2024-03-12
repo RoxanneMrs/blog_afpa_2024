@@ -22,10 +22,16 @@
                 
 
                         <div class="col-md-8 d-flex flex-column ms-3 align-items-start">
+
                             <h3> {{ article.title}} </h3>
                             <p> {{ article.descritpion }} </p>
+
                             <a class="btn btn-success mb-2" href="{{ path('app_article_show', {'id': article.id}) }}">show</a>
-                            <a class="btn btn-warning" href="{{ path('app_article_edit', {'id': article.id}) }}">edit</a>
+
+                            {% if app.user and 'ROLE_ADMIN' in app.user.getroles()  %}
+                                <a class="btn btn-warning" href="{{ path('app_article_edit', {'id': article.id}) }}">edit</a>
+                            {% endif %}
+                         
                         </div>
                     </div>
                     
@@ -33,9 +39,11 @@
                 </a>
             {% endfor %}
 
-            <div class="row justify-content-center">
-                <a class="my-5 col-md-2 btn btn-success" href="{{ path('app_article_new') }}">Create new</a>
-            </div>  
+            {% if app.user and 'ROLE_ADMIN' in app.user.getroles()  %}
+                <div class="row justify-content-center">
+                    <a class="my-5 col-md-2 btn btn-success" href="{{ path('app_article_new') }}">Create new</a>
+                </div>  
+            {% endif %}
     </div>
 
 {% endblock %}
