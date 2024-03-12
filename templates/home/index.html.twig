@@ -39,9 +39,13 @@
                     </div>
                 </a>
             {% endfor %}
+
+            <div class="navigation">
+                {{ knp_pagination_render(articles) }}
+            </div>
         </div>
 
     </div>
 
-    {{ fabrice }}
+    {# {{ fabrice }} #}
 {% endblock %}
