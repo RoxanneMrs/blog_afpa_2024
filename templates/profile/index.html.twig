@@ -4,9 +4,14 @@
 
 {% block body %}
 
-    {# var_dump des infos de mon utilisateur
-    {{dump(app.user)}} #}
+    {# var_dump des infos de mon utilisateur #}
+    {{dump(app.user)}}
 
-    {{app.user.email}}
+    <li> {{app.user.firstname}}   </li>
+    <li> {{app.user.name}}        </li>
+    <li> {{app.user.address}}     </li>
+    <li> {{app.user.codepostal}}  </li>
+    <li> {{app.user.phonenumber}} </li>
+    <li> {{app.user.email}}       </li>
 
 {% endblock %}
