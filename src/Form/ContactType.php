@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\Contact;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -32,6 +33,12 @@ class ContactType extends AbstractType
             ->add('name', TextType::class, [
                 'label'=> 'Nom',
                 'attr' => ['placeholder' => 'Votre nom'],
+                'row_attr' => ['class' => 'col-md-6', 'id' => '...'],
+            ])
+
+            ->add('email', EmailType::class, [
+                'label' => 'Email',
+                'attr' => ['placeholder' => 'Votre email'],
                 'row_attr' => ['class' => 'col-md-6', 'id' => '...'],
             ])
 
