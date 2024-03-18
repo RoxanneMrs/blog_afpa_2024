@@ -45,4 +45,19 @@ class ArticleRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+
+
+    // pour l'input type search, une requête SQL classique de Symfony ne conviendra pas.
+    // la sélection des articles dépendra du mot clé entré dans Search (donc LIKE %motclé%)
+    public function findArticleBySearch($search) : array {
+
+        return $this->createQueryBuilder('a')
+
+            ->andWhere('a.descritpion LIKE :search')
+            ->setParameter('search', "%" . $search . "%")
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 }
