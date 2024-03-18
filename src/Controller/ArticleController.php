@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Article;
+use App\Entity\Comments;
 use App\Form\ArticleType;
+use App\Form\CommentType;
 use App\Repository\ArticleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -47,11 +49,32 @@ class ArticleController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_article_show', methods: ['GET'])]
-    public function show(Article $article): Response
+    #[Route('/{id}', name: 'app_article_show', methods: ['GET', 'POST'])]
+    public function show(Article $article, Request $request, EntityManagerInterface $entityManager): Response
     {
+
+        $comment = new Comments();
+        $form = $this->createForm(CommentType::class, $comment);
+        $form->handleRequest($request); // permet d'intercepter la requête lancée par la soumission du formulaire
+
+        if($form->isSubmitted() && $form->isValid()) {
+
+            $comment->setIdUser($this->getUser());
+            $comment->setIdArticle($article);
+            $comment->setDate(new \DateTime);
+            $comment->setIsValid(false);
+            $entityManager->persist($comment); // insérer en base
+            $entityManager->flush(); // fermer la transaction executée par la BDD
+
+            $this->addFlash(
+                'success',
+                'Votre commentaire a bien été envoyé'
+            );
+        }
+
         return $this->render('article/show.html.twig', [
             'article' => $article,
+            'commentForm' => $form,
         ]);
     }
 
@@ -78,7 +101,7 @@ class ArticleController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_article_delete', methods: ['POST'])]
+    #[Route('/{id}/delete', name: 'app_article_delete', methods: ['POST'])]
     public function delete(Request $request, Article $article, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$article->getId(), $request->request->get('_token'))) {

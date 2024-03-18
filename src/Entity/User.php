@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -50,6 +52,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 20)]
     private ?string $code_postal = null;
+
+    #[ORM\OneToMany(targetEntity: Comments::class, mappedBy: 'id_user', orphanRemoval: true)]
+    private Collection $id_comment;
+
+    public function __construct()
+    {
+        $this->id_comment = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -194,6 +204,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCodePostal(string $code_postal): static
     {
         $this->code_postal = $code_postal;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Comments>
+     */
+    public function getIdComment(): Collection
+    {
+        return $this->id_comment;
+    }
+
+    public function addIdComment(Comments $idComment): static
+    {
+        if (!$this->id_comment->contains($idComment)) {
+            $this->id_comment->add($idComment);
+            $idComment->setIdUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeIdComment(Comments $idComment): static
+    {
+        if ($this->id_comment->removeElement($idComment)) {
+            // set the owning side to null (unless already changed)
+            if ($idComment->getIdUser() === $this) {
+                $idComment->setIdUser(null);
+            }
+        }
 
         return $this;
     }

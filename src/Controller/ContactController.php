@@ -17,7 +17,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class ContactController extends AbstractController
 {
     #[Route('/contact', name: 'app_contact')]
-    public function index(Request $request,
+    public function index(
+    Request $request,
     EntityManagerInterface $entityManager,
     ValidatorInterface $validator, 
     MailerInterface $mailer   
