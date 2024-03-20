@@ -88,7 +88,11 @@ class Category
         return $this;
     }
 
-    // public function __toString() {
-    //     return $this->category;
-    // }
+
+    // on a créé cette fonction manuellement car sinon dans le formulaire de modification d'un article, 
+    // les choix de catégories seront des ID (1,2) puisque Category est une entité
+    // ici on fait en sorte qu'à la place, les choix affichés soient les noms de chaque catégorie
+    public function __toString() {
+        return $this->title;
+    }
 }
