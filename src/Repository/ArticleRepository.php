@@ -60,4 +60,15 @@ class ArticleRepository extends ServiceEntityRepository
             ->getResult()
         ;
     }
+
+
+    public function findArticleByFilter($filter) : array {
+
+        return $this->createQueryBuilder('a')
+
+            ->orderBy("a.date", $filter)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 }

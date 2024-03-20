@@ -8,6 +8,7 @@ use App\Repository\CategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -60,6 +61,36 @@ class HomeController extends AbstractController
         } else {
             return $this->redirectToRoute('app_article_index', [], Response::HTTP_SEE_OTHER);
         }
+    }
+
+
+    #[Route('/{filter}', name: 'app_home_filter')]
+    public function getArticleByFilter(ArticleRepository $articleRepository, 
+                                        CategoryRepository $categoryRepository,
+                                        Request $request,
+                                        string $filter
+                                        ): JsonResponse {
+        
+        $articlesData = [];
+
+        foreach ($articleRepository->findArticleByFilter($filter) as $article) {
+
+            $articleData = [
+                'id' => $article->getId(),
+                'title' => $article->getTitle(),
+                'descritpion' => $article->getDescritpion(),
+                'picture' => $article->getPicture(),
+                'date' => $article->getDate()->format("Y-m-d"),
+                'category_id' => $article->getCategory() ? $article->getCategory()->getId() : null,
+                'category_name' => $article->getCategory() ? $article->getCategory()->getTitle() : null,
+            ];
+
+            // Ajouter le tableau simplifié de l'article au tableau des articles
+            $articlesData[] = $articleData;
+        }
+
+        // Utilisez JsonResponse pour retourner le tableau d'articles en JSON
+        return new JsonResponse($articlesData);
     }
 
 }

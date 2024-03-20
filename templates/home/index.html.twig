@@ -21,8 +21,19 @@
 
         <div class="col-8 border">
 
+            {# avec l'asyncrone je veux que si je fais un select ici #}
+            <form class="col-md-12">
+                <select class="form-select" id="filter" name="filter">
+                    <option value="asc"> Moins récent </option>
+                    <option value="desc"> Plus récent </option>
+                </select>
+            </form>
+
+{# 
+            ceci soit rechargé avec le filtre pris en compte #}
             {% for article in articles %}
 
+            <div class="col-md-12" id="list-articles">
                 <a href="{{ path('app_article_show', { id : article.id} ) }}">
                     <div class="article d-flex p-3">
 
@@ -38,6 +49,7 @@
                         </div>
                     </div>
                 </a>
+            </div>
             {% endfor %}
 
             <div class="navigation">
