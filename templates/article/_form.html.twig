@@ -2,6 +2,19 @@
 {% form_theme form 'bootstrap_5_layout.html.twig' %}
 
 {{ form_start(form) }}
-    {{ form_widget(form) }}
+
+    {# {{ form_widget(form) }} #}
+
+    {{ form_row(form.title) }}
+    {{ form_row(form.descritpion) }}
+    {{ form_row(form.category) }}
+    {{ form_row(form.picture) }}
+
+    {% if article.picture %}
+    <div>
+        <img  src=" {{ asset('uploads/articles/' ~ article.picture) }}" alt="image actuelle" style="max-width: 200px; max-height: 200px; margin-bottom:2rem">
+    </div>
+    {% endif %}
+
     <button class="btn btn-success mb-2">{{ button_label|default('Save') }}</button>
 {{ form_end(form) }}

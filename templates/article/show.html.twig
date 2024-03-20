@@ -42,4 +42,11 @@
     {% endif %} 
 
    
+    {% for comment in article.idComment %}
+
+        <p> {{comment.comment}} </p>
+        <i> {{comment.idUser}} - {{comment.date | date("d-m-Y") }} </p>
+
+    {% endfor %}
+
 {% endblock %}

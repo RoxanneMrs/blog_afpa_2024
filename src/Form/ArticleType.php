@@ -41,12 +41,13 @@ class ArticleType extends AbstractType
                     ])
                 ],
             ])
-            ->add('date', null, [
-                'widget' => 'single_text',
-            ])
+            // ->add('date', null, [
+            //     'widget' => 'single_text',
+            // ])
             ->add('category', EntityType::class, [
                 'class' => Category::class,
-                'choice_label' => 'id',
+                'choice_label' => 'title',  // pour afficher le nom des catégories dans le formulaire
+                                            // remplace 'choice_label' => 'id' qui est mis par défaut et affiche l'id
             ])
         ;
     }
