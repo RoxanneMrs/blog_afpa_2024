@@ -64,7 +64,7 @@ class HomeController extends AbstractController
     }
 
 
-    #[Route('/{filter}', name: 'app_home_filter')]
+    #[Route('/filter/{filter}', name: 'app_home_filter')]
     public function getArticleByFilter(ArticleRepository $articleRepository, 
                                         CategoryRepository $categoryRepository,
                                         Request $request,
