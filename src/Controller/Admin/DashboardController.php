@@ -6,6 +6,7 @@ use App\Entity\Article;
 use App\Entity\Category;
 use App\Entity\Comments;
 use App\Entity\Contact;
+use App\Entity\Product;
 use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -52,6 +53,7 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Mes contacts', 'fas fa-list', Contact::class);
         yield MenuItem::linkToCrud('Mes commentaires', 'fas fa-list', Comments::class);
         yield MenuItem::linkToCrud('Mes utilisateurs', 'fas fa-list', User::class);
+        yield MenuItem::linkToCrud('Mes produits', 'fas fa-list', Product::class);
         // yield MenuItem::linkToCrud('The Label', 'fas fa-list', EntityClass::class);
     }
 }

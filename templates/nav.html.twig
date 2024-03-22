@@ -13,8 +13,14 @@
         <li class="nav-item">
           <a class="nav-link active" aria-current="page" href="{{ path('app_article_index') }}">Nos articles</a>
         </li>
+           <li class="nav-item">
+          <a class="nav-link" href="{{ path('app_product_index') }}">Nos produits</a>
+        </li>
         <li class="nav-item">
           <a class="nav-link" href="{{ path('app_contact') }}">Contact</a>
+        </li>
+         <li class="nav-item">
+          <a class="nav-link" href=" {{ path('app_cart') }}" > Panier </a>
         </li>
 
         {% if is_granted('ROLE_USER') %}
