@@ -33,8 +33,9 @@ class ProductType extends AbstractType
                         'mimeTypes' => [
                             'image/png',
                             'image/jpeg',
+                            'image/jpg',
                         ],
-                        'mimeTypesMessage' => 'Veuillez uploader un fichier de type pgn ou jpeg',
+                        'mimeTypesMessage' => 'Veuillez uploader un fichier de type pgn, jpg ou jpeg',
                     ])
                 ],
             ])

@@ -29,7 +29,9 @@
             </div>
         </div>
 
-        <a class="btn btn-success" href="{{path('app_cart_add', {'idProduct': product.id}) }}"> Ajouter au panier </a>
+        <form action="{{ path('app_cart_add', {'idProduct': product.id}) }}" method="POST">
+            <input type="submit" class="btn btn-success" value="Ajouter au panier" />
+        </form>
 
     {% if app.user and 'ROLE_ADMIN' in app.user.getroles()  %}
         
