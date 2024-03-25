@@ -14,12 +14,19 @@ class CartController extends AbstractController
     #[Route('/cart', name: 'app_cart')]
     public function index(Request $request): Response {
 
-      
+           // Récupérer les éléments du panier depuis la session
+           $cartItems = $request->getSession()->get('cart', []);
 
-        return $this->render('cart/index.html.twig', [
-            'cartItems' => [],
-            'cartTotal' => 100,
-        ]);
+           // Calculer le montant total du panier
+           $cartTotal = 0;
+           foreach ($cartItems['price'] as $i => $price) {
+               $cartTotal += floatval($price) * $cartItems['stock'][$i];
+           }
+   
+           return $this->render('cart/index.html.twig', [
+               'cartItems' => $cartItems,
+               'cartTotal' => $cartTotal,
+           ]);
     }
 
 
