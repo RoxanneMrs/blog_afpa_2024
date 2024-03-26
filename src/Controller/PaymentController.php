@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Order;
 use App\Entity\OrderDetails;
+use App\Repository\OrderDetailsRepository;
 use App\Repository\OrderRepository;
 use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -44,6 +45,7 @@ class PaymentController extends AbstractController
             $order->setStatus('En cours');
             $order->setUser($this->getUser());
             $order->setDate(new \DateTime);
+            $order->setPdf(false);
 
             $entityManager->persist($order);
             $entityManager->flush();
@@ -58,8 +60,10 @@ class PaymentController extends AbstractController
                 $entityManager->persist($orderDetails);
                 $entityManager->flush();
 
-                $this->redirectToRoute("success");
             }
+                // rendu de la page après la boucle for
+                $request->getSession()->set('cart', []); // on vide le panier là
+                return $this->redirectToRoute("success");
         }
 
         $session = $request->getSession();
@@ -67,62 +71,99 @@ class PaymentController extends AbstractController
 
         // si pas connecté
         return $this->redirectToRoute('app_login');
+
     }
 
-
-
     #[Route('/success', name: 'success')]
-    public function success(MailerInterface $mailer) : Response {
+    public function success(MailerInterface $mailer, 
+                            OrderRepository $orderRepository, 
+                            OrderDetailsRepository $orderDetailsRepository,
+                            EntityManagerInterface $entityManager,
+                            Request $request): Response
+    {
 
         // le numéro de la dernière facture pour le user
         // le montant total
         // les produits achetés
-        // => récupérer la denrière facture insérée en bdd pour le user
+        // => récupérer la dernière facture insérée en bdd pour le user
         // et tous les orderDetails liés à cette facture
 
-        // 1 on génère le pdf
-        $pdfOptions = new Options();
-        $pdfOptions->set(['defaultFont' => 'Arial', 'enable_remote' => true]);
+        $idUser = $this->getUser()->getId();
+        $order = $orderRepository->findOneBy(['user' => $idUser], ['id' => 'DESC']);
+
+        // si je n'ai pas encore de pdf pour mon order j'en crée un
+        if(!$order->isPdf()) {
         
-        // 2 on crée le pdf avec les options
-        $domPdf = new Dompdf($pdfOptions);
+            // on génera le PDF
+            $pdfOptions = new Options();
+            $pdfOptions->set(['defaultFont' => 'Arial', 'enable_remote' => true]);
+            // 2- On crée le pdf avec les options
+            $dompdf = new Dompdf($pdfOptions);
 
-        // 3 on prépare le twig qui sera transformé en pdf
-        $html = $this->renderView('invoice/index.html.twig', [
-            'Amount' => 10,
-            'invoiceNumber' => 'F1093',
-            'date' => new \DateTime(),
-            'products' => []
-        ]);
+            $invoiceNumber =  $order->getId();
 
-        // 4 on transforme le twig en pdf avec les options de format
-        $domPdf->loadHtml($html);
-        $domPdf->setPaper('A4', 'portrait');
+            // 3- On prépare le twig qui sera transformée en pdf
+            $html = $this->renderView('invoice/index.html.twig', [
+                'user' => $this->getUser(),
+                'amount' => $order->getTotal(),
+                'invoiceNumber' => $invoiceNumber,
+                'date' => new \DateTime(),
+                'orderDetails' => $orderDetailsRepository->findBy(['id_order' => $order->getId()])
+            ]);
 
-        // on enregistre le pdf dans une variable
-        $domPdf->render();
-        $finalInvoice = $domPdf->output();
+            // 4- On transforme le twig en pdf avec les options de format
+            $dompdf->loadHtml($html);
+            $dompdf->setPaper('A4', 'portrait');
 
-        if(!file_exists('uploads/facture')) {
-            mkdir('uploads/factures');
+            // 5- On enregistre le pdf dans une variable
+            $dompdf->render();
+            $finalInvoice = $dompdf->output();
+
+            if (!file_exists('uploads/factures')) {
+                mkdir('uploads/factures');
+            }
+
+        
+            $pathInvoice = "./uploads/factures/" . $invoiceNumber . "_" . $this->getUser()->getId() . ".pdf";
+            file_put_contents($pathInvoice, $finalInvoice);
+            // on l'enverra par mail la facture
+            // on affichera une page de succès
+
+            $email = (new TemplatedEmail())
+                ->from($this->getParameter('app.mailAddress'))
+                ->to($this->getUser()->getEmail())
+                ->subject("Facture Blog Afpa 2024")
+                ->htmlTemplate("invoice/email.html.twig")
+                ->context([
+                    'user' => $this->getUser(),
+                    'amount' => $order->getTotal(),
+                    'invoiceNumber' => $invoiceNumber,
+                    'date' => new \DateTime(),
+                    'orderDetails' => $orderDetailsRepository->findBy(['id_order' => $order->getId()])
+                ])
+                ->attach($finalInvoice, sprintf('facture-' . $invoiceNumber . 'blog-afpa.pdf', date("Y-m-d")));
+
+            $mailer->send($email);
+
+            $order->setPdf(true);
+            $entityManager->persist($order);
+            $entityManager->flush();
+
+            // vider le panier mais je crois que ça on l'a déjà ligne 65
+            // $session = $request->getSession();
+            // $session->set('cart', []);
+
+            return $this->render("payment/success.html.twig", [
+                'user' => $this->getUser(),
+                'amount' => $order->getTotal(),
+                'invoiceNumber' => $invoiceNumber,
+                'date' => new \DateTime(),
+                'orderDetails' => $orderDetailsRepository->findBy(['id_order' => $order->getId()]),
+            ]);
+
+        } else { // si j'ai déjà un pdf pour mon order, je redirige juste la page (au cas où un malin essaye de refresh la page, ça évite le spam de pdf/email)
+            
+            return $this->redirectToRoute('app_home');
         }
-
-        $invoiceNumber = 5;
-        $pathInvoice = "./uploads/factures/" . $invoiceNumber . "_" . $this->getUser()->getId() . ".pdf";
-        file_put_contents($pathInvoice, $finalInvoice);
-
-        $email = (new TemplatedEmail())
-            ->from($this->getParameter('app.mailAddress'))
-            ->to($this->getUser()->getEmail())
-            ->subject("Facture Blog Afpa 2024")
-            ->htmlTemplate("invoice/email.html.twig")
-            ->attach($finalInvoice, sprintf('facture-' . $invoiceNumber . 'blog-afpa.pdf', date("Y-m-d")));
-
-        $mailer->send($email);
-
-        return $this->render("payment/success.html.twig", [
-            'invoiceNumber' => $invoiceNumber,
-            'amount' => 100,
-        ]);
     }
 }

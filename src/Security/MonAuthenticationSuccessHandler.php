@@ -8,7 +8,7 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerI
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Http\HttpUtils;
 
-class MyAuthenticationSuccessHandler implements AuthenticationSuccessHandlerInterface
+class MonAuthenticationSuccessHandler implements AuthenticationSuccessHandlerInterface
 {
     private $httpUtils;
 
