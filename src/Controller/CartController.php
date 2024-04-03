@@ -14,24 +14,27 @@ class CartController extends AbstractController
     #[Route('/cart', name: 'app_cart')]
     public function index(Request $request): Response {
 
-         // Récupérer les éléments du panier depuis la session
-         $cartItems = $request->getSession()->get('cart', []);
+        // Récupérer les éléments du panier depuis la session
+        $session = $request->getSession();
+        $cartTotal = 0;
 
-         // Calculer le montant total du panier
-         $cartTotal = 0;
-         foreach ($cartItems['price'] as $i => $price) {
-             $cartTotal += floatval($price) * $cartItems['stock'][$i];
-         }
+        // Calculer le montant total du panier si j'ai bien une session/des items dans mon panier
+        if(!is_null($session->get('cart')) && count($session->get('cart')) > 0) {
 
-         return $this->render('cart/index.html.twig', [
-             'cartItems' => $cartItems,
-             'cartTotal' => $cartTotal,
-         ]);
+           for($i = 0; $i < count($session->get('cart')["id"]); $i++) {
+               $cartTotal += (float) $session->get('cart')["price"][$i] * $session->get('cart')["stock"][$i];
+           }
+        }
+   
+           return $this->render('cart/index.html.twig', [
+               'cartItems' => $session->get('cart'),
+               'cartTotal' => $cartTotal,
+           ]);
     }
 
 
 
-    #[Route('/cart/{idProduct}', name: 'app_cart_add')]
+    #[Route('/cart/{idProduct}', name: 'app_cart_add', methods: ['POST'])]
     public function addProduct(Request $request,
                                 ProductRepository $productRepository,
                                 int $idProduct): Response {
@@ -83,4 +86,39 @@ class CartController extends AbstractController
         ]);
 
     }
+
+
+//     #[Route('/cart/remove/{idProduct}', name: 'app_cart_remove', methods: ['POST'])]
+//    public function removeProduct(Request $request, int $idProduct): Response
+//    {
+//        $cartItems = $request->getSession()->get('cart', []);
+
+//        foreach ($cartItems['id'] as $i => $idProduct) {
+   
+//             if (isset($cartItems["id"][$i])) {
+//                 unset($cartItems["id"][$i]);
+//             }
+        
+//             $this->addFlash(
+//                 'success',
+//                 'L\'article a bien été supprimé du panier'
+//             );
+//         }
+
+//        $request->getSession()->set('cart', $cartItems);
+
+//        return $this->redirectToRoute('app_cart');
+//    }
+
+
+
+   #[Route('/cart/delete', name: 'app_cart_delete', methods: ['GET'])]
+   public function deleteCart (Request $request): Response {
+
+    $session = $request->getSession();
+    $session->remove('cart', []);
+
+    return $this->redirectToRoute('app_cart');
+
+   }
 }

@@ -28,6 +28,9 @@ class Order
     #[ORM\Column(length: 255)]
     private ?string $status = null;
 
+    #[ORM\Column(options: ["default" => 0])]
+    private ?bool $pdf;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -77,6 +80,18 @@ class Order
     public function setStatus(string $status): static
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function isPdf(): ?bool
+    {
+        return $this->pdf;
+    }
+
+    public function setPdf(bool $pdf): static
+    {
+        $this->pdf = $pdf;
 
         return $this;
     }

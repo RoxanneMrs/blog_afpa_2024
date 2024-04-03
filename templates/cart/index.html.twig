@@ -46,46 +46,64 @@ th {
 
 <div class="cart-container">
     
+     {{ include('flash.html.twig') }}
+
     <h2>Votre panier</h2>
     
-    <table>
+    {% if cartItems is not empty %}   
+        
+        <table>
+            
+        
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Article</th>
+                    <th>Description</th>
+                    <th>Image</th>
+                    <th>Prix</th>
+                    <th>Quantité</th>
+                    {# <th>Action</th> #}
+                </tr>
+            </thead>
 
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Article</th>
-                <th>Description</th>
-                <th>Image</th>
-                <th>Prix</th>
-                <th>Quantité</th>
-            </tr>
-        </thead>
+            <tbody>
+        
+            {% for i in 0..(cartItems.id|length - 1) %}
 
-        <tbody>
-           
-          {% for i in 0..(cartItems.id|length - 1) %}
+                <tr>
+                <td> {{ cartItems.id[i] }} </td>
+                <td> {{ cartItems.title[i] }} </td>
+                <td> {{ cartItems.description[i] }} </td>
+                <td> <img style="width:100px" src="{{ asset('uploads/articles/' ~ cartItems.picture[i]) }}" alt="Image de {{ cartItems.description[i]}}"> </td>
+                <td> {{ cartItems.price[i] }} € </td>
+                <td> {{ cartItems.stock[i] }} </td>
+                {# <td> {{ include('cart/_delete_form.html.twig') }} </td> #}
+                </tr>
 
-            <tr>
-              <td> {{ cartItems.id[i] }} </td>
-              <td> {{ cartItems.title[i] }} </td>
-              <td> {{ cartItems.description[i] }} </td>
-              <td> <img style="width:100px" src="{{ asset('uploads/articles/' ~ cartItems.picture[i]) }}" alt="Image de {{ cartItems.description[i]}}"> </td>
-              <td> {{ cartItems.price[i] }} € </td>
-              <td> {{ cartItems.stock[i] }} </td>
-            </tr>
-          {% endfor %}
+            {% endfor %}
 
-        </tbody>
-    
-    </table>
-    
-    <div class="cart-total">
-        Total: <span>{{ cartTotal }} €</span>
-    </div>
+            </tbody>
+        
+        </table>
+        
+        <div class="cart-total">
+            Total: <span>{{ cartTotal }} €</span>
+        </div>
 
-    <form action="" method="POST">
-        <input type="submit" name="payer" value="Pay" class="btn btn-outline-secondary">
-    </form>
+        <form action="{{path('pay')}}" method="POST">
+            <input type="submit" name="payer" value="Pay" class="btn btn-outline-secondary">
+        </form>
+
+        <a href="{{ path('app_cart_delete')}}" class="btn btn-danger mt-2"> Vider le panier </a>
+
+    {% else %}
+        <p>Votre panier est vide.</p>
+    {% endif %}    
+
 </div>
+
+
+  
 
 {% endblock %}
