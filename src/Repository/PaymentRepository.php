@@ -21,6 +21,21 @@ class PaymentRepository extends ServiceEntityRepository
         parent::__construct($registry, Payment::class);
     }
 
+
+    public function findLastPaymentByUser($userId)
+    {
+        $qb = $this->createQueryBuilder('p') 
+            ->where('p.user = :userId')
+            ->orderBy('p.id', 'DESC')
+            ->setMaxResults(1)
+            ->setParameter('userId', $userId);
+
+        $query = $qb->getQuery();
+
+        return $query->getOneOrNullResult();
+    }
+
+
     //    /**
     //     * @return Payment[] Returns an array of Payment objects
     //     */

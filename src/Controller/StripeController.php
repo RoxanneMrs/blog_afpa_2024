@@ -26,52 +26,61 @@ class StripeController extends AbstractController
     public function checkout(Request $request, EntityManagerInterface $entityManager): Response
     {
 
-        // Définir la clé secrète de Stripe
-        // récupérer ma session stripe via ma clé stripe
-        \Stripe\Stripe::setApiKey($this->getParameter('app.stripe_key'));
-
         $productsInSession = $request->getSession()->get('cart');
+        
+        if(!empty($productsInSession)) {
 
-        dd($productsInSession);
+            // Définir la clé secrète de Stripe
+            // récupérer ma session stripe via ma clé stripe
+            \Stripe\Stripe::setApiKey($this->getParameter('app.stripe_key'));
 
-        $products = [];
+            $products = [];
 
-        // [
-        //     "price" => "",
-        //     "quantity" => 1
-        // ]
+            for($i = 0; $i < count($productsInSession["id"]); $i++) {
+                $products[] = [
+                    "price" => $productsInSession["priceIdStripe"][$i],
+                    "quantity" => $productsInSession["stock"][$i]
+                ];
+            }
+            // dd($products);
 
-        // afficher un formulaire de paiement avec une session de paiement stripe
-        $session = \Stripe\Checkout\Session::create([
-            'payment_method_types' => ['card'],
-            'currency' => 'eur',
-            'line_items' => [
-                $products
-            ],
-            'allow_promotion_codes' => true,
-            'customer_email' => "sam@gmail.com",
-            'mode' => 'payment',
-            'success_url' => $this->generateUrl('app_stripe_success', [], UrlGeneratorInterface::ABSOLUTE_URL),
-            'cancel_url' => $this->generateUrl('app_stripe_error', [], UrlGeneratorInterface::ABSOLUTE_URL),
-            // 'client_reference_id' => 1
-        ]);
+            // afficher un formulaire de paiement avec une session de paiement stripe
+            $session = \Stripe\Checkout\Session::create([
+                'payment_method_types' => ['card'],
+                'currency' => 'eur',
+                'line_items' => [
+                    $products
+                ],
+                'allow_promotion_codes' => true,
+                'customer_email' => "sam@gmail.com",
+                'mode' => 'payment',
+                'success_url' => $this->generateUrl('app_stripe_success', [], UrlGeneratorInterface::ABSOLUTE_URL),
+                'cancel_url' => $this->generateUrl('app_stripe_error', [], UrlGeneratorInterface::ABSOLUTE_URL),
+                // 'client_reference_id' => 1
+            ]);
 
 
-        // créer un paiement en bdd
-        // pour stocker les informations liées à la session de paiement stripe
-        $payment = new Payment();
-        $payment->setUser($this->getUser())
-            ->setSessionID($session['id'])
-            ->setPaymentStatus($session['payment_status'])
-            ->setDate(new \DateTime())
-            ->setSuccessPageExpired(false)
-            ->setAmount($session['amount_total'] / 100);
-        $entityManager->persist($payment);
-        $entityManager->flush();
+            // créer un paiement en bdd
+            // pour stocker les informations liées à la session de paiement stripe
+            $payment = new Payment();
+            $payment->setUser($this->getUser())
+                ->setSessionID($session['id'])
+                ->setPaymentStatus($session['payment_status'])
+                ->setDate(new \DateTime())
+                ->setSuccessPageExpired(false)
+                ->setAmount($session['amount_total'] / 100);
+            $entityManager->persist($payment);
+            $entityManager->flush();
 
-        return $this->redirect($session->url, 303);
+            return $this->redirect($session->url, 303);
+        
+        } else {
 
+            return $this->redirectToRoute('app_home');
+        }
     }
+
+
 
     #[Route('/payment/success', name: 'app_stripe_success')]
     public function success(
@@ -102,12 +111,12 @@ class StripeController extends AbstractController
             // ca me permet de savoir que le dernier paiement effectué par le user
             // n'est pas encore arrivé sur la page success
             // et que donc je peux créer mes factures et mes commandes
-            if ($lastPayment->getSuccessPageExpired() == false && $session['customer']) {
+            if ($lastPayment->isSuccessPageExpired() == false && $session['payment_status'] == "paid") {
 
                 // Récupération de toutes les informations liés à la session et donc au dernier paiement
-                $subscription = \Stripe\Subscription::retrieve($session['subscription']);
+                $subscription = \Stripe\PaymentIntent::retrieve($session['payment_intent']);
                 // $invoice = \Stripe\Invoice::retrieve($subscription['latest_invoice']);
-                $paymentMethod = \Stripe\PaymentMethod::retrieve($subscription['default_payment_method']);
+                $paymentMethod = \Stripe\PaymentMethod::retrieve($subscription['payment_method']);
 
                 // je mets à jour mon paiement
 
@@ -117,7 +126,7 @@ class StripeController extends AbstractController
                 $lastPayment->setPaymentStatus($session['payment_status'])
                     // ->setCustomerStripeId($session['customer'])
                     // ->setSubscriptionId($session['subscription'])
-                    ->setPaymentMethodId($paymentMethod['id'])
+                    // ->setPaymentMethodId($paymentMethod['id'])
                     ->setSuccessPageExpired(true); // On paramètre ici la valeur true ce qui permettra d'éviter à un utilisateur de retourner sur cette page une deuxième fois.
                 $entityManager->persist($lastPayment);
 
@@ -131,7 +140,7 @@ class StripeController extends AbstractController
                 $cartTotal = 0;
 
                 for ($i = 0; $i < count($cart["id"]); $i++) {
-                    $cartTotal += (float) $cart["price"][$i] * $cart["quantity"][$i];
+                    $cartTotal += (float) $cart["price"][$i] * $cart["stock"][$i];
                 }
 
                 $order->setTotal($cartTotal);
@@ -145,7 +154,7 @@ class StripeController extends AbstractController
                 // pour chaque élément de mon panier je créé un détail de commande
                 for ($i = 0; $i < count($cart["id"]); $i++) {
                     $orderDetails = new OrderDetails;
-                    $orderDetails->setIdOrder($order->getId());
+                    $orderDetails->setIdOrder($order);
                     $orderDetails->setProduct($productRepository->find($cart["id"][$i]));
                     $orderDetails->setQuantity($cart["id"][$i]);
 
@@ -166,7 +175,7 @@ class StripeController extends AbstractController
                     // 3- On prépare le twig qui sera transformée en pdf
                     $html = $this->renderView('invoice/index.html.twig', [
                         'user' => $this->getUser(),
-                        'amount' => $order->getAmount(),
+                        'amount' => $order->getTotal(),
                         'invoiceNumber' => $invoiceNumber,
                         'date' => new \DateTime(),
                         'orderDetails' => $orderDetailsRepository->findBy(['orderNumber' => $order->getId()])
@@ -200,7 +209,7 @@ class StripeController extends AbstractController
                         ->htmlTemplate("invoice/email.html.twig")
                         ->context([
                             'user' => $this->getUser(),
-                            'amount' => $order->getAmount(),
+                            'amount' => $order->getTotal(),
                             'invoiceNumber' => $invoiceNumber,
                             'date' => new \DateTime(),
                             'orderDetails' => $orderDetailsRepository->findBy(['orderNumber' => $order->getId()])
@@ -217,19 +226,14 @@ class StripeController extends AbstractController
                     $session = $request->getSession();
                     $session->set('cart', []);        
             
-                    // return $this->render("payment/success.html.twig", [
-                    //     'user' => $this->getUser(),
-                    //     'amount' => $order->getAmount(),
-                    //     'invoiceNumber' => $invoiceNumber,
-                    //     'date' => new \DateTime(),
-                    //     'orderDetails' => $orderDetailsRepository->findBy(['orderNumber' => $order->getId()])
-                    // ]);
-
-                    return $this->render('stripe/success.html.twig', [
-                        'invoiceNumber' => $order->getId(),
-                        'paymentMethod' => $paymentMethod['card']['brand'],
+                    return $this->render("stripe/success.html.twig", [
+                        'user' => $this->getUser(),
+                        'amount' => $order->getTotal(),
+                        'invoiceNumber' => $invoiceNumber,
+                        'date' => new \DateTime(),
+                        'orderDetails' => $orderDetailsRepository->findBy(['orderNumber' => $order->getId()])
                     ]);
-        
+
                 }
 
             }

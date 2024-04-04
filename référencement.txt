@@ -1,0 +1,51 @@
+-----------
+----- CE QU'ON PEUT GÉRÉR CÔTÉ CODE
+-----------
+
+1. Utilisez des Balises Sémantiques HTML5
+Structure de page claire: Utilisez des balises telles que <header>, <footer>, <nav>, <section>, et <article> pour structurer votre contenu de manière logique.
+Titres et sous-titres: Utilisez les balises <h1> à <h6> pour hiérarchiser votre contenu.
+
+2. Assurez-vous que votre site est Responsive
+Viewport: Utilisez la balise <meta name="viewport" content="width=device-width, initial-scale=1.0"> pour assurer une bonne lisibilité sur les appareils mobiles.
+CSS Media Queries: Adaptez votre design aux différents écrans avec les media queries.
+
+3. Optimisez le Temps de Chargement
+Compresser les images: Utilisez des formats modernes comme WebP pour les images.
+Minifiez CSS/JS: Réduisez la taille de vos fichiers CSS et JavaScript.
+Utilisez le lazy loading pour les images: Chargez les images seulement quand elles sont nécessaires.
+
+4. Assurez-vous que votre site est Accessible
+Attributs alt pour les images: Fournissez des descriptions textuelles pour les images.
+Navigation au clavier: Assurez-vous que votre site peut être navigué avec un clavier.
+Contrastes de couleurs: Vérifiez les contrastes pour une meilleure lisibilité.
+
+5. Utilisez les Métadonnées et les Balises de Référencement
+Balise title et descriptions: Ces balises sont cruciales pour le SEO. Assurez-vous qu'elles sont uniques pour chaque page et qu'elles décrivent le contenu de manière précise.
+Balises Open Graph pour les réseaux sociaux: Utilisez ces balises pour contrôler l'apparence de vos pages lorsqu'elles sont partagées sur les réseaux sociaux.
+
+-----------
+----- CE QU'ON PEUT GÉRÉR CÔTÉ CODE
+-----------
+
+1. Utilisez des Balises Sémantiques HTML5
+Structure de page claire: Utilisez des balises telles que <header>, <footer>, <nav>, <section>, et <article> pour structurer votre contenu de manière logique.
+Titres et sous-titres: Utilisez les balises <h1> à <h6> pour hiérarchiser votre contenu.
+
+2. Assurez-vous que votre site est Responsive
+Viewport: Utilisez la balise <meta name="viewport" content="width=device-width, initial-scale=1.0"> pour assurer une bonne lisibilité sur les appareils mobiles.
+CSS Media Queries: Adaptez votre design aux différents écrans avec les media queries.
+
+3. Optimisez le Temps de Chargement
+Compresser les images: Utilisez des formats modernes comme WebP pour les images.
+Minifiez CSS/JS: Réduisez la taille de vos fichiers CSS et JavaScript.
+Utilisez le lazy loading pour les images: Chargez les images seulement quand elles sont nécessaires.
+
+4. Assurez-vous que votre site est Accessible
+Attributs alt pour les images: Fournissez des descriptions textuelles pour les images.
+Navigation au clavier: Assurez-vous que votre site peut être navigué avec un clavier.
+Contrastes de couleurs: Vérifiez les contrastes pour une meilleure lisibilité.
+
+5. Utilisez les Métadonnées et les Balises de Référencement
+Balise title et descriptions: Ces balises sont cruciales pour le SEO. Assurez-vous qu'elles sont uniques pour chaque page et qu'elles décrivent le contenu de manière précise.
+Balises Open Graph pour les réseaux sociaux: Utilisez ces balises pour contrôler l'apparence de vos pages lorsqu'elles sont partagées sur les réseaux sociaux.
