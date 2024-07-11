@@ -52,19 +52,7 @@ class ContactController extends AbstractController
                     ->htmlTemplate("email/contact.html.twig")
                     ->context(['contact' => $contact,]);
                 $mailer->send($message);
-    
-
-                // rediriger vers une autre page
-                // return $this->redirectToRoute(/* ... */);
             }
-                    
-                // else {
-
-                // $errors = $validator->validate($contact);
-                // dd($form->getErrors()); // c'est un var_dump
-                
-                // }
-
         }
 
         return $this->render('contact/index.html.twig', [
